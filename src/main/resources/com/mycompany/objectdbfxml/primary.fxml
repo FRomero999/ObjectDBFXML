@@ -18,7 +18,7 @@
    <children>
       <BorderPane>
          <center>
-            <TableView fx:id="tabla" prefHeight="200.0" prefWidth="200.0">
+            <TableView fx:id="tabla" onMouseClicked="#seleccionar" prefHeight="200.0" prefWidth="200.0">
               <columns>
                 <TableColumn fx:id="cId" prefWidth="75.0" text="Id" />
                 <TableColumn fx:id="cAlias" prefWidth="75.0" text="Alias" />
@@ -55,9 +55,11 @@
                   <TextField fx:id="txtPassword" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
-            <FlowPane alignment="CENTER" prefHeight="43.0" prefWidth="201.0">
+            <FlowPane alignment="CENTER" hgap="10.0" prefHeight="43.0" prefWidth="201.0">
                <children>
-                  <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardar" text="Guardar usuario" />
+                  <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardar" text="Nuevo" />
+                  <Button fx:id="btnActualizar" mnemonicParsing="false" onAction="#actualizar" text="Actualizar" />
+                  <Button fx:id="btnBorrar" mnemonicParsing="false" onAction="#borrar" text="Borrar" />
                </children>
             </FlowPane>
          </children>

@@ -1,5 +1,7 @@
 package com.mycompany.objectdbfxml;
 
+import dao.UsuarioDAO;
+import dao.ObjectDBUtil;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -11,6 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -32,43 +35,33 @@ public class PrimaryController implements Initializable {
     @FXML
     private TextField txtPassword;
     @FXML
-    private Button btnGuardar;
-
-    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("data.odb");
+    private Button btnGuardar;  
     
+    private UsuarioDAO usuarios;
+    @FXML
+    private Button btnActualizar;
+    @FXML
+    private Button btnBorrar;
     
-    private void switchToSecondary() throws IOException {
-        App.setRoot("secondary");
-    }
-
+    Usuario usuarioActual = null;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        EntityManager em = emf.createEntityManager();
-        System.out.println("Conexión realizada con exito");
-        em.close();
         
         cId.setCellValueFactory(new PropertyValueFactory("id"));
         cAlias.setCellValueFactory(new PropertyValueFactory("alias"));
         cPassword.setCellValueFactory(new PropertyValueFactory("password"));
-          
-        actualizarTabla();
         
+        
+        usuarios = new UsuarioDAO();
+        
+        actualizarTabla();
+
     }
 
-    private void actualizarTabla() {
+    private void actualizarTabla() {       
         tabla.getItems().clear();
-        EntityManager em=emf.createEntityManager();
-        TypedQuery<Usuario> q = em.createQuery("select u from Usuario u",Usuario.class);
-        for( Usuario u : q.getResultList()){
-            tabla.getItems().add(u);
-        }
-        em.close();
-    }
-
-    private void actualizarTabla(EntityManager em) {       
-        tabla.getItems().clear();
-        TypedQuery<Usuario> q = em.createQuery("select u from Usuario u",Usuario.class);
-        for( Usuario u : q.getResultList()){
+        for( Usuario u : usuarios.getAll()){
             tabla.getItems().add(u);
         }
     }
@@ -80,12 +73,39 @@ public class PrimaryController implements Initializable {
         u.setAlias( txtAlias.getText());
         u.setPassword( txtPassword.getText() );
 
-        var em=emf.createEntityManager();
-        em.getTransaction().begin();
-        em.persist(u);
-        em.getTransaction().commit();
-        actualizarTabla(em);
-        em.close();
+        usuarios.add(u);
+        actualizarTabla();
+        
+        limpiarFormulario();
 
+    }
+
+    private void limpiarFormulario() {
+        txtAlias.setText("");
+        txtPassword.setText("");
+    }
+
+    @FXML
+    private void seleccionar(MouseEvent event) {
+        
+        usuarioActual = tabla.getSelectionModel().getSelectedItem();
+        txtAlias.setText(usuarioActual.getAlias());
+        txtPassword.setText(usuarioActual.getPassword());
+        
+    }
+
+    @FXML
+    private void actualizar(ActionEvent event) {
+        usuarioActual.setAlias( txtAlias.getText());
+        usuarioActual.setPassword( txtPassword.getText() );        
+        usuarios.update(usuarioActual);
+        actualizarTabla();
+    }
+
+    @FXML
+    private void borrar(ActionEvent event) {
+        usuarios.delete(usuarioActual);
+        usuarioActual = null;
+        actualizarTabla();
     }
 }
